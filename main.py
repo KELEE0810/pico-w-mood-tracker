@@ -1,151 +1,183 @@
-from machine import Pin, I2C 
-import sh1106                
-import ds3231                
-import time                  
-import os                    
-import network              
-import urequests             
-from secrets import secrets  
+from machine import Pin, I2C
+import network
+import urequests
+import time
+import os
+import gc
+import sh1106  # Hardware Driver
+import ds3231
+from secrets import secrets # secrets
 
-# I2C installation (SDA: 4, SCL: 5)
-i2c = I2C(0, sda=Pin(4), scl=Pin(5), freq=400000)
-
-# Hardware initializing & Error handling
-try:
-    # OLED setting (you can set your own rotate option)
-    display = sh1106.SH1106_I2C(128, 64, i2c, rotate=180)
-    display.sleep(False)
-    # RTC setting 
-    rtc = ds3231.DS3231(i2c) 
-    print("OLED & RTC connected! :D")
-except Exception as e:
-    print("Hardware connect failed! Check hardware connection:", e)
-    rtc = None # Though you don't have rtc, it's ok
-
-# Buttons & Mood setting
-button_pins = [10, 11, 12, 13, 14, 15] # Pico's pin numbers for buttons
-buttons = [Pin(p, Pin.IN, Pin.PULL_UP) for p in button_pins] # Buttons setting
-
-# Moods (You can chage whatever you want)
-moods = ["Happy :D", "Peace :)", "Anxious X(", "Angry -_-^", "Excited XD", "Tired -_-"]
-
-# Local Log(RAM)
-mood_queue = []
-
-# wifi connect setting
-def connect_wifi():
-    wlan = network.WLAN(network.STA_IF)
-    wlan.active(True)
-    if not wlan.isconnected():
-        print(f"Wifi connecting... ({secrets['ssid']})")
-        wlan.connect(secrets['ssid'], secrets['password'])
-        
-        # Check every 1 sec for 10 secs
-        attempt = 0
-        while not wlan.isconnected() and attempt < 10:
-            time.sleep(1)
-            attempt += 1
-    
-    if wlan.isconnected():
-        print("Wifi connect success!", wlan.ifconfig()[0])
-        return True
-    else:
-        print("Wifi connect failed... (offline)")
-        return False
-
-# uploading on Google Sheet
-def send_to_google():
-    if not connect_wifi(): 
-        return # give up uploading
-    
-    # check unsent mood_log.csv
-    if "mood_log.csv" in os.listdir():
-        print("Unsent Mood_log found! Sending...")
+# 1. Display & RTC Management
+class DisplayManager:
+    def __init__(self, sda_pin, scl_pin):
+        self.i2c = I2C(0, sda=Pin(sda_pin), scl=Pin(scl_pin), freq=400000)
         try:
-            with open("mood_log.csv", "r") as f:
-                lines = f.readlines() # read every line
+            self.display = sh1106.SH1106_I2C(128, 64, self.i2c, rotate=180)
+            self.display.sleep(False)
+            self.rtc = ds3231.DS3231(self.i2c)
+            print("OLED & RTC initialized!")
+        except Exception as e: 
+            print("Failed connecting:", e)
+            self.rtc = None
+    
+    def get_time_str(self):
+        if self.rtc:
+            t = self.rtc.get_time()
+            return "{:04d}-{:02d}-{:02d}".format(t[0], t[1], t[2]), "{:02d}:{:02d}:{:02d}".format(t[4], t[5], t[6])
+        return "0000-00-00", "00:00:00"
+    
+    def display_start(self):
+        self.display.fill(0)
+        self.display.text("Ready to Click!", 5, 25, 1)
+        self.display.show()
+        
+    def draw_mood(self, mood_text, wifi_on=False):
+        date_s, time_s = self.get_time_str()
+        self.display.fill(0)
+        self.display.rect(0, 0, 128, 64, 1)
+        
+        if wifi_on:    # wifi status
+            self.display.text("o", 115, 5, 1) # connected: o
+        else:
+            self.display.text("x", 115, 5, 1) # disconnceted: x
             
-            all_sent_successfully = True
+        self.display.text("Now I feel...", 13, 15, 1)
+        self.display.text(mood_text, 13, 30, 1)
+        self.display.text(time_s, 13, 50, 1)
+        self.display.show()
+
+    def show_uploading(self):      # show uploading screen
+        self.display.fill(0)
+        self.display.rect(0, 0, 128, 64, 1)
+        self.display.text("uploading", 25, 25, 1)
+        self.display.text("my mood...", 13, 40, 1)
+        self.display.show()
+        
+# 2. Wifi 
+class WifiManager:
+    def __init__(self):
+        self.ssid = secrets['ssid']
+        self.pw = secrets['password']
+        self.wlan = network.WLAN(network.STA_IF)
+        
+    def connect(self):
+        self.wlan.active(True)
+        if not self.wlan.isconnected():
+            print(f"trying connecting Wifi...: {self.ssid}")
+            self.wlan.connect(self.ssid, self.pw)
+            for _ in range(10):
+                if self.wlan.isconnected(): break
+                time.sleep(1)
+        return self.wlan.isconnected()
+    
+# 3. Log Record
+class LocalLogger:
+    def __init__(self, filename="mood_log.csv"):
+        self.filename = filename
+    
+    def save(self, data_str):
+        with open(self.filename, "a") as f:
+            f.write(data_str + "\n")
             
-            for line in lines:
-                line = line.strip()
-                if not line: continue
+    def read_all(self):
+        if self.filename in os.listdir():
+            with open(self.filename, "r") as f:
+                return f.readlines()
+        return []
+    
+    def clear(self):
+        if self.filename in os.listdir():
+            os.remove(self.filename)
+
+# 4. Cloud Sync & Memory Management
+class GoogleUploader:
+    def __init__(self):
+        self.url = secrets['google_url']
+        
+    def sync_from_file(self, logger, display_man):
+        lines = logger.read_all()
+        if not lines: return
+        
+        display_man.show_uploading()
+        print(f"start sync: {len(lines)}records")
+        all_ok = True
+        
+        for line in lines:
+            line = line.strip()
+            if not line: continue
+            
+            # encoding characters
+            d, t, m = line.split(',')
+            m_safe = m.replace(" ", "%20").replace(":", "%3A").replace("^", "%5E")
+            full_url = f"{self.url}?date={d}&time={t}&mood={m_safe}"
+            
+            resp = None # initialzing
+            try:
+                resp = urequests.get(full_url)
                 
-                parts = line.split(',')
-                if len(parts) < 3: continue
-                
-                date_val, time_val, mood_val = parts[0], parts[1], parts[2]
-                
-                # Encoding special characters(For 400 Error)
-                safe_mood = mood_val.replace(" ", "%20").replace(":", "%3A").replace("(", "%28").replace("^", "%5E")
-                url = f"{secrets['google_url']}?date={date_val}&time={time_val}&mood={safe_mood}"
-                
-                resp = urequests.get(url)
-                
-                # Handle HTTP 302 redirect
+                # handling HTTP 302 redirect(if needed)
                 if resp.status_code == 302:
                     new_url = resp.headers.get("Location")
-                    resp.close()
+                    resp.close() # close earlier response
                     resp = urequests.get(new_url)
                 
-                if "Success" not in resp.text:
-                    all_sent_successfully = False
-                    print(f"Upload failed line: {line}")
+                # check final uploading
+                if resp.status_code == 200 and "Success" in resp.text:
+                    print(f"uploading success: {m}")
+                else:
+                    all_ok = False
+                    print(f"failed uploadig(status code): {resp.status_code}")
+            
+            except Exception as e:
+                print(f"network error: {e}")
+                all_ok = False
+                break # escape
                 
-                resp.close()
+            finally:
+                if resp:
+                    resp.close() # memory off
+            pass
+        
+        if all_ok:
+            logger.clear()
+            print("success uploading & removing all logs!")
             
-            # Remove all local logs if upload successed
-            if all_sent_successfully:
-                os.remove("mood_log.csv")
-                mood_queue.clear()
-                print("Unsent data uploaded! Removed local log.")
-            
-        except Exception as e:
-            print("Error while uploading:", e)
+        gc.collect()  # garbage collecting
+        print(f"memory optimalized: {gc.mem_free()}bytes free")
+        
+# Main Code
+# 1. call classes
+dm = DisplayManager(4, 5)                         # 1. display
+wm = WifiManager()                                # 2. wifi
+logger = LocalLogger()                            # 3. local record
+uploader = GoogleUploader()                       # 4. Google upload & remove cash
 
-# local log
-def save_mood(mood_name):
-    # check current time from RTC
-    if rtc is None:
-        date_str, time_str = "0000-00-00", "00:00:00"
-    else:
-        t = rtc.get_time() # [Year, Month, Date, Day, Hour, Minute, Second]
-        date_str = "{:04d}-{:02d}-{:02d}".format(t[0], t[1], t[2])
-        time_str = "{:02d}:{:02d}:{:02d}".format(t[4], t[5], t[6])
-    
-    log_entry = f"{date_str},{time_str},{mood_name.strip()}"
-    mood_queue.append(log_entry)
-    print(f"RAM queue added: {log_entry}")
-    
-    # backup to Flash memory (local storage)
-    try:
-        with open("mood_log.csv", "a") as f:
-            f.write(log_entry + "\n")
-        print(f"Success Logging: {log_entry}")
-    except Exception as e:
-        print("Failed Logging:", e)
+# 2. buttons setting (GP10, 11, 12, 13, 14, 15)
+button_pins = [10, 11, 12, 13, 14, 15]
+buttons = [Pin(p, Pin.IN, Pin.PULL_UP) for p in button_pins]
+moods = ["Happy :D", "Peace :)", "Anxious X(", "Angry -_-^", "Excited XD", "Tired -_-"]
 
-# Display
-def draw_screen(btn_num):
-    display.fill(0)
-    display.rect(0, 0, 128, 64, 1) # frames
-    
-    mood_text = moods[btn_num - 1] 
-    display.text("now I feel...", 13, 15, 1)
-    display.text(mood_text, 13, 40, 1)
-    display.show()
-
-# Main loop
-display.fill(0)
-display.text("Ready to Click!", 5, 25, 1)
-display.show()
+# 3. start screen
+dm.display_start()
 
 while True:
-    for i, btn in enumerate(buttons): 
-        if btn.value() == 0: # PULL_UP
-            btn_number = i + 1
+    for i, btn in enumerate(buttons):
+        if btn.value() == 0:
+            is_wifi = wm.wlan.isconnected()
+            date_s, time_s = dm.get_time_str()  # show screen and current time
+            dm.draw_mood(moods[i], wifi_on=is_wifi) 
             
-            draw_screen(btn_number)   # show chosen emotion
-            save_mood(moods[i])    # save at RAM or Flash memory
-            send_to_google()     # try uploading on Google Sheets
-            time.sleep(0.3)    # debouncing
+            log_data = f"{date_s},{time_s},{moods[i]}" # record log locally
+            logger.save(log_data)
+            print(f"local saved: {log_data}") 
+            
+            if wm.connect():  # try connecting wifi & uploading on Google sheets
+                uploader.sync_from_file(logger, dm)
+                dm.draw_mood(moods[i], wifi_on=True)
+                
+            while btn.value() == 0:  # wait for button release(debouncing)
+                time.sleep(0.05)   # stabilizing 
+            time.sleep(0.5)
+            dm.display_start()   # back to start scren
+    time.sleep(0.1)   # small delay to reduce CPU load

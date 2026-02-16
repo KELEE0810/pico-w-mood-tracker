@@ -1,5 +1,7 @@
 PicoW-Mood-Tracker: OOP-based IoT Logger
 
+![Hardware Setup](./images/IMG_1025.jpeg)
+
 IoT mood tracking system built with Raspberry Pi Pico W. This project demonstrates the integration of hardware sensors, local data persistence, and cloud synchronization using an Object-Oriented Programming (OOP) approach.
 
 1.  Key Features
@@ -10,7 +12,7 @@ IoT mood tracking system built with Raspberry Pi Pico W. This project demonstrat
 - Reliability: Memory management and hardware debouncing for stable long-term operation.
 
 2.  Tech Stack
-![Hardware Setup](./images/IMG_1025.jpeg)
+
 ![Schematic](./images/IMG_0002.jpeg)
 - Language: MicroPython
 - Hardware: Raspberry Pi Pico W, SH1106 OLED, DS3231 RTC, Tactile Buttons

@@ -17,10 +17,12 @@ IoT mood tracking system built with Raspberry Pi Pico W. This project demonstrat
 - Concepts: Encapsulation, Modularization, System Integration, API Communication
 
 3. Project Journey: From Script to System
+
 This project evolved through a rigorous refactoring process.
 (1) Monolithic Script: Initial proof-of-concept.
 (2) Refactoring (OOP): Transitioned to class-based design for better encapsulation.
 (3) Modularization: Decoupled components into 5 distinct modules for professional maintenance and scalability.
 
-4. Security Note
+5. Security Note
+   
 secrets.py (containing WiFi credentials and Google API URLs) is excluded from this repository for security reasons. Please use secrets_template.py as a reference.

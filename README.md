@@ -11,6 +11,7 @@ IoT mood tracking system built with Raspberry Pi Pico W. This project demonstrat
 
 2.  Tech Stack
 ![Hardware Setup](./images/IMG_1025.jpeg)
+![Schematic](.images/IMG_0002.jpeg)
 - Language: MicroPython
 - Hardware: Raspberry Pi Pico W, SH1106 OLED, DS3231 RTC, Tactile Buttons
 - Cloud: Google Apps Script (Web App)

@@ -1,7 +1,7 @@
 from machine import Pin
 import time
 from display_manager import DisplayManager
-from wifi_manger import WifiManager
+from wifi_manager import WifiManager
 from local_logger import LocalLogger
 from google_uploader import GoogleUploader
 

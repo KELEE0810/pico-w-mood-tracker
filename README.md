@@ -7,7 +7,7 @@ IoT mood tracking system built with Raspberry Pi Pico W. This project demonstrat
 - Hardware Integration: Real-time feedback via SH1106 OLED and precise timekeeping with DS3231 RTC.
 - Data Resilience: Local CSV logging ensures no data loss during network outages.
 - Cloud Sync: Seamless data transmission to Google Sheets via REST API.
-- Reliability: Advanced memory management (Garbage Collection) and hardware debouncing for stable long-term operation.
+- Reliability: Memory management and hardware debouncing for stable long-term operation.
 
 2.  Tech Stack
 ![Hardware Setup](./images/IMG_1025.jpeg)

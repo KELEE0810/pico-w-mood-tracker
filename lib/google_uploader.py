@@ -20,7 +20,7 @@ class GoogleUploader:
             
             # encoding characters
             d, t, m = line.split(',')
-            m_safe = m.replace(" ", "%20").replace(":", "%3A").replace("^", "%5E")
+            m_safe = m.replace(" ", "%20").replace(":", "%3A").replace("(", "%28").replace("^", "%5E")
             full_url = f"{self.url}?date={d}&time={t}&mood={m_safe}"
             
             resp = None # initialzing

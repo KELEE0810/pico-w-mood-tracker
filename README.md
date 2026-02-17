@@ -24,7 +24,7 @@ IoT mood tracking system built with Raspberry Pi Pico W. This project demonstrat
 To ensure a stable connection and prevent hardware damage, please follow these guidelines:
 
 ### General Wiring Tips
-* **I2C Bus Sharing**: Both the OLED display and the RTC module use the I2C protocol. You can connect both **SDA** and **SCL** lines to the same GPIO pins on the Pico W (Bus line) to keep the wiring clean.
+* **I2C Bus Sharing**: Both the OLED display and the RTC module use the I2C protocol. You can connect both **SDA** and **SCL** lines to the same GPIO pins on the Pico W.
 * **Power Check**: Double-check the **VCC (3.3V)** and **GND** pins before powering on. Reversing these can permanently damage your sensors.
 * **Bus Line Strategy**: If possible, use the long power rails (side strips) on the breadboard as dedicated "Bus Lines" for VCC, GND, SDA, and SCL for easier management.
 

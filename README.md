@@ -19,6 +19,23 @@ IoT mood tracking system built with Raspberry Pi Pico W. This project demonstrat
 - Cloud: Google Apps Script (Web App)
 - Concepts: Encapsulation, Modularization, System Integration, API Communication
 
+## 💡 Wiring Guide & Tips
+
+To ensure a stable connection and prevent hardware damage, please follow these guidelines:
+
+### General Wiring Tips
+* **I2C Bus Sharing**: Both the OLED display and the RTC module use the I2C protocol. You can connect both **SDA** and **SCL** lines to the same GPIO pins on the Pico W (Bus line) to keep the wiring clean.
+* **Power Check**: Double-check the **VCC (3.3V)** and **GND** pins before powering on. Reversing these can permanently damage your sensors.
+* **Bus Line Strategy**: If possible, use the long power rails (side strips) on the breadboard as dedicated "Bus Lines" for VCC, GND, SDA, and SCL for easier management.
+
+### Button Connection (Tactile Switch)
+* **Diagonal Wiring**: For 4-pin tactile buttons, it is highly recommended to connect the **GPIO wire** and **GND wire** to pins located **diagonally** from each other. This ensures a stable connection regardless of the internal switch structure.
+* **Pull-up Resistor**: This project uses internal pull-up resistors (`Pin.PULL_UP`), so you only need to connect one side of the button to the GPIO and the other to GND.
+
+### Tip for Hobbyists
+* Using different colored wires (e.g., Red for VCC, Black for GND, Yellow for SCL, Blue for SDA) makes debugging significantly easier when something goes wrong!
+
+
 ## 3. Project Journey: From Script to System
 
 This project evolved through a rigorous refactoring process.

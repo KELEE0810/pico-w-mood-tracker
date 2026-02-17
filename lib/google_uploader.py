@@ -48,7 +48,6 @@ class GoogleUploader:
             finally:
                 if resp:
                     resp.close() # memory off
-            pass
         
         if all_ok:
             logger.clear()

@@ -4,6 +4,12 @@
 
 IoT mood tracking system built with Raspberry Pi Pico W. This project demonstrates the integration of hardware sensors, local data persistence, and cloud synchronization using an Object-Oriented Programming (OOP) approach.
 
+## 0.  Introduction
+
+There are hundreds of mood-tracking apps out there, but let’s be honest: finding your phone, unlocking it, and navigating through menus just to log a feeling is tedious. I wanted something simpler—a physical device where a single **"Click"** does it all. 
+As a Python learner only a few months into the journey, I was starting to get bored with results that only lived on a computer monitor. I needed something tactile. If you are a fellow beginner starting to feel the "Python slump," I hope this project serves as a refreshing break and reminds you how much fun coding can be when it interacts with the real world.
+
+
 ## 1.  Key Features
 - OOP Architecture: Modular design with dedicated managers for Display, WiFi, Logging, and Cloud Uploading.
 - Hardware Integration: Real-time feedback via SH1106 OLED and precise timekeeping with DS3231 RTC.

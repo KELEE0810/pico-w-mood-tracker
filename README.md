@@ -36,7 +36,33 @@ This project evolved through a rigorous refactoring process.
   - **google_uploader.py** : Syncs data with Google Sheets API.
 - **images/** : Contain hardware schematics and project photos.
 - **secrets_template.py** : Template for environment variables (wifi / API).
+
+## 5. How to Install & Run
+
+This project uses **Thonny IDE** to upload and run code on the Raspberry Pi Pico W.
+
+### 1) Prerequisites
+* Install [Thonny IDE](https://thonny.org/).
+* Connect your Pico W to your computer via USB.
+* Ensure MicroPython firmware is installed on your Pico W.
+
+### 2) Setup Secrets
+1. Locate `secrets_template.py` in this repository.
+2. Rename it to `secrets.py`.
+3. Open `secrets.py` and enter your WiFi SSID, Password, and your Google Apps Script URL.
+
+### 3) Upload Files to Pico W
+1. Open Thonny IDE.
+2. Go to **File > Open...** and select all files from the `lib/` folder and the `main.py` file from your local machine.
+3. For each file, go to **File > Save as...** and select **Raspberry Pi Pico**.
+4. **Important:** * Save the contents of the `lib/` folder (e.g., `display_manager.py`, `wifi_manager.py`, etc.) into a folder named `lib` on the Pico.
+   * Save `main.py` and `secrets.py` directly in the root directory of the Pico.
+
+### 4) Run
+1. Disconnect and reconnect the USB, or simply press the **Run** button in Thonny.
+2. Your Pico W will now start tracking your mood!
+
    
-## 5. Security Note
+## 6. Security Note
    
 secrets.py (containing WiFi credentials and Google API URLs) is excluded from this repository for security reasons. Please use secrets_template.py as a reference.

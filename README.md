@@ -28,7 +28,7 @@ This project evolved through a rigorous refactoring process.
 
 ## 4. Project Structure
 
-- **main.py** : Cenetral controller. Must be saved directly to Pico.
+- **main.py** : Central controller. Must be saved directly to Pico.
 - **lib/** : Containing functional modules.
   - **display_manager.py** : Handles I2C for SH1106 OLED & DS3231 RTC.
   - **wifi_manager.py** : Manage Pico W's wireless connectivity.

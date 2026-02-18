@@ -16,7 +16,7 @@ uploader = GoogleUploader()
 # buttons setting (GP10, 11, 12, 13, 14, 15)
 button_pins = [10, 11, 12, 13, 14, 15]
 buttons = [Pin(p, Pin.IN, Pin.PULL_UP) for p in button_pins]
-moods = ["Happy :D", "Peace :)", "Anxious X(", "Angry -_-^", "Excited XD", "Tired -_-"]
+moods = ["Excited XD", "Happy :D", "Peace :)", "Tired -_-", "Anxious X(", "Angry -_-^"]
 
 # start screen
 dm.display_start()

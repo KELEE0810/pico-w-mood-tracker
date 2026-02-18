@@ -23,14 +23,13 @@ As a Python learner only a few months into the journey, I was starting to get bo
 - Language: MicroPython
 - Hardware: Raspberry Pi Pico W, SH1106 OLED, DS3231 RTC, Tactile Buttons
 - Cloud: Google Apps Script (Web App)
-- Concepts: Encapsulation, Modularization, System Integration, API Communication
 
 ## 💡 Wiring Guide & Tips
 
 To ensure a stable connection and prevent hardware damage, please follow these guidelines:
 
 ### General Wiring Tips
-* **I2C Bus Sharing**: Both the OLED display and the RTC module use the I2C protocol. You can connect both **SDA** and **SCL** lines to the same GPIO pins on the Pico W.
+* **I2C Sharing**: Both the OLED display and the RTC module use the I2C protocol. You can connect both **SDA** and **SCL** lines to the same GPIO pins on the Pico W.
 * **Power Check**: Double-check the **VCC (3.3V)** and **GND** pins before powering on. Reversing these can permanently damage your sensors.
 * **Bus Line Strategy**: If possible, use the long power rails (side strips) on the breadboard as dedicated "Bus Lines" for VCC, GND, SDA, and SCL for easier management.
 
@@ -51,12 +50,14 @@ This project evolved through a rigorous refactoring process.
 
 ## 4. Project Structure
 
-- **main.py** : Central controller. Must be saved directly to Pico.
+- **main.py** : Must be saved directly to Pico.
 - **lib/** : Containing functional modules.
   - **display_manager.py** : Handles I2C for SH1106 OLED & DS3231 RTC.
   - **wifi_manager.py** : Manage Pico W's wireless connectivity.
   - **local_logger.py** : Provides persistent CSV logging (offline storage).
   - **google_uploader.py** : Syncs data with Google Sheets API.
+  - **sh1106.py** : MicroPython Driver for OLED. *(See below 7. Credits & Acknowledgments)*
+  - **ds3231.py** : Lightweight RTC Driver focused on I2C communication and BCD-decimal conversion.
 - **images/** : Contain hardware schematics and project photos.
 - **secrets_template.py** : Template for environment variables (wifi / API).
 
@@ -80,6 +81,7 @@ This project uses **Thonny IDE** to upload and run code on the Raspberry Pi Pico
 3. For each file, go to **File > Save as...** and select **Raspberry Pi Pico**.
 4. **Important:** * Save the contents of the `lib/` folder (e.g., `display_manager.py`, `wifi_manager.py`, etc.) into a folder named `lib` on the Pico.
    * Save `main.py` and `secrets.py` directly in the root directory of the Pico.
+   * Don't forget to include hardware drivers.
 
 ### 4) Run
 1. Disconnect and reconnect the USB, or simply press the **Run** button in Thonny.
@@ -89,3 +91,15 @@ This project uses **Thonny IDE** to upload and run code on the Raspberry Pi Pico
 ## 6. Security Note
    
 secrets.py (containing WiFi credentials and Google API URLs) is excluded from this repository for security reasons. Please use secrets_template.py as a reference.
+
+
+## 7. Credits & Acknowledgments
+
+This project utilizes a combination of open-source libraries and custom-built drivers:
+
+* **SH1106 MicroPython Driver**: Created by [Radomir Dopieralski](https://github.com/deshipu), [Robert Hammelrath](https://github.com/robert-hh), and [Tim Weber](https://github.com/scy).
+    * Original Repository: [robert-hh/SH1106](https://github.com/robert-hh/SH1106)
+    * License: MIT License
+* **DS3231 Custom Driver**: Personally developed for this project, focusing on lightweight I2C communication and BCD-decimal conversion for RTC management.
+
+Special thanks to the open-source contributors whose work made this DIY project possible.

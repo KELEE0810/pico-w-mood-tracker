@@ -9,7 +9,7 @@ IoT mood tracking system built with Raspberry Pi Pico W. This project demonstrat
 There are hundreds of mood-tracking apps out there, but let’s be honest: finding your phone, unlocking it, and navigating through menus just to log a feeling is tedious. I wanted something simpler—a physical device where a single **"Click"** does it all. 
 As a Python learner only a few months into the journey, I was starting to get bored with results that only lived on a computer monitor. I needed something tactile. If you are a fellow beginner starting to feel the "Python slump," I hope this project serves as a refreshing break and reminds you how much fun coding can be when it interacts with the real world.
 
-![Google Sheets App Integration](./images/google_sheets_app.jpeg)  
+![Google Sheets App Integration](./images/IMG_1181.png)  
 *Real-time mood logs as seen on the mobile Google Sheets app.* You can monitor your emotional trends directly from your smartphone using the Google Sheets app, anywhere and anytime.
 
 ## 1.  Key Features

@@ -38,6 +38,6 @@ while True:
                 
             while btn.value() == 0:  # wait for button release(debouncing)
                 time.sleep(0.05)   # stabilizing 
-            time.sleep(0.5)
+            time.sleep(3)   # show selected mood for 3 secs
             dm.display_start()   # back to start scren
     time.sleep(0.1)   # small delay to reduce CPU load

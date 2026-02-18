@@ -1,5 +1,7 @@
 from machine import Pin
 import time
+from sh1106 import SH1106
+from ds3231 import DS3231
 from display_manager import DisplayManager
 from wifi_manager import WifiManager
 from local_logger import LocalLogger

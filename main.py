@@ -9,7 +9,7 @@ from google_uploader import GoogleUploader
 
 SLEEP_TIMER = 30    # period of time after which device goes to sleep
 _last_interaction = time.time()
-screen_on = True
+device_asleep = True
 
 # call modules
 dm = DisplayManager(4, 5)                  
@@ -22,19 +22,31 @@ button_pins = [10, 11, 12, 13, 14, 15]
 buttons = [Pin(p, Pin.IN, Pin.PULL_UP) for p in button_pins]
 moods = ["Excited XD", "Happy :D", "Peace :)", "Tired -_-", "Anxious X(", "Angry -_-^"]
 
+
+def activate_sleep_mode(display: DisplayManager, wifi: WifiManager) -> None:
+    global device_asleep
+    display.display.sleep(True)
+    wifi.disconnect()
+    device_asleep = True
+
+def deactivate_sleep_mode(display: DisplayManager, wifi: WifiManager) -> None:
+    global device_asleep, _last_interaction
+    display.display.sleep(False)
+    wifi.connect()
+    device_asleep = False
+    _last_interaction = time.time()
+
 # start screen
 dm.display_start()
 
 while True:
-    global _last_interaction, screen_on
+    global _last_interaction, device_asleep
 
     for i, btn in enumerate(buttons):
         if btn.value() == 0:
 
-            if not screen_on:
-                dm.display.sleep(False)
-                screen_on = True
-                _last_interaction = time.time()
+            if device_asleep:
+                deactivate_sleep_mode(dm, wm)
 
             is_wifi = wm.wlan.isconnected()
             date_s, time_s = dm.get_time_str()  # show screen and current time
@@ -56,9 +68,10 @@ while True:
             _last_interaction = time.time()  # save the time of interaction
 
         # check if device should go to sleep
-        if screen_on and (time.time() - _last_interaction > SLEEP_TIMER):
-            dm.display.sleep(True)
-            screen_on = False
+        if not device_asleep and (time.time() - _last_interaction > SLEEP_TIMER):
+            activate_sleep_mode(dm, wm)
 
     time.sleep(0.1)   # small delay to reduce CPU load
+
+
 

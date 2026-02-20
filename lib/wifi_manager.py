@@ -17,3 +17,9 @@ class WifiManager:
                 if self.wlan.isconnected(): break
                 time.sleep(1)
         return self.wlan.isconnected()
+
+    def disconnect(self):
+        print("disconnecting Wifi...")
+        self.wlan.active(False)
+        return self.wlan.isconnected()
+

@@ -9,7 +9,7 @@ from google_uploader import GoogleUploader
 
 SLEEP_TIMER = 30    # period of time after which device goes to sleep
 _last_interaction = time.time()
-device_asleep = True
+device_asleep = False
 
 # call modules
 dm = DisplayManager(4, 5)                  

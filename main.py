@@ -40,8 +40,6 @@ def deactivate_sleep_mode(display: DisplayManager, wifi: WifiManager) -> None:
 dm.display_start()
 
 while True:
-    global _last_interaction, device_asleep
-
     for i, btn in enumerate(buttons):
         if btn.value() == 0:
 

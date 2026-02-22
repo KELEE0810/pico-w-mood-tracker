@@ -1,5 +1,5 @@
 secrets = {
-    'ssid': 'YOUR_WIFI_NAME', # 2.4G only
-    'password': 'YOUR_WIFI_PASSWORD',
-    'google_url': 'YOUR_GOOGLE_SCRIPT_URL'
-}
+    'networks': [
+        {'ssid':'wifi no.1', 'pw':'password no.1'}, # 2.4G only
+        {'ssid':'wifi no.2', 'pw':'password no.2'}],
+    'google_url': 'your google_API_url'}

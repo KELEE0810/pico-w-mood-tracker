@@ -4,22 +4,32 @@ from secrets import secrets
 
 class WifiManager:
     def __init__(self):
-        self.ssid = secrets['ssid']
-        self.pw = secrets['password']
+        self.networks = secrets.get('networks', [])
         self.wlan = network.WLAN(network.STA_IF)
-        
+
     def connect(self):
         self.wlan.active(True)
-        if not self.wlan.isconnected():
-            print(f"trying connecting Wifi...: {self.ssid}")
-            self.wlan.connect(self.ssid, self.pw)
+        if self.wlan.isconnected():
+            return True
+
+        for net in self.networks:
+            ssid = net.get('ssid')
+            pw = net.get('pw')
+            
+            print(f"Trying to connect to {ssid}...")
+            self.wlan.connect(ssid, pw)
+            
             for _ in range(10):
-                if self.wlan.isconnected(): break
+                if self.wlan.isconnected():
+                    print(f"Success! Connected to {ssid}")
+                    return True
                 time.sleep(1)
-        return self.wlan.isconnected()
+            
+            print(f"Failed to connect to {ssid}")
+            
+        return False
 
     def disconnect(self):
-        print("disconnecting Wifi...")
+        print("Disconnecting WiFi to save power...")
         self.wlan.active(False)
-        return self.wlan.isconnected()
-
+        return not self.wlan.isconnected()
